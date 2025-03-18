@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学中的优美线条 - 动态演示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .curve-container {
+            transition: all 0.3s ease;
+        }
+        
+        .curve-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        canvas {
+            transition: background-color 0.3s;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            height: 5px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            transition: opacity 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .dark .slider {
+            background: #4b5563;
+        }
+        
+        .dark .slider::-webkit-slider-thumb {
+            background: #60a5fa;
+        }
+        
+        .section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
+    <header class="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-sm animate-fade-in">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary-600 dark:text-primary-400">数学中的优美线条</h1>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                    <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <section class="section mb-16">
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100">探索数学的艺术之美</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                    通过交互式可视化，探索数学函数如何创造出令人惊叹的曲线和图案。
+                    调整参数，观察变化，感受数学之美。
+                </p>
+            </div>
+        </section>
+
+        <!-- 正弦曲线 -->
+        <section class="section mb-16">
+            <div class="curve-container bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">正弦曲线</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    正弦函数是最基础的周期函数之一，描述了简谐运动的位移。公式：y = A·sin(ωx + φ)
+                </p>
+                <div class="mb-6">
+                    <canvas id="sineCanvas" class="w-full h-64 bg-gray-50 dark:bg-gray-700 rounded-lg"></canvas>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">振幅 (A)</label>
+                        <input type="range" min="0.1" max="1" step="0.1" value="0.5" class="slider w-full" id="sineAmplitude">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="sineAmplitudeValue">0.5</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">1.0</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">频率 (ω)</label>
+                        <input type="range" min="1" max="10" step="0.5" value="2" class="slider w-full" id="sineFrequency">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">1</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="sineFrequencyValue">2</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">10</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">相位 (φ)</label>
+                        <input type="range" min="0" max="6.28" step="0.1" value="0" class="slider w-full" id="sinePhase">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="sinePhaseValue">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">2π</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 利萨如曲线 -->
+        <section class="section mb-16">
+            <div class="curve-container bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">利萨如曲线</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    利萨如曲线是由两个垂直方向的简谐振动合成的曲线，公式：x = A·sin(a·t + δ), y = B·sin(b·t)
+                </p>
+                <div class="mb-6">
+                    <canvas id="lissajousCanvas" class="w-full h-64 bg-gray-50 dark:bg-gray-700 rounded-lg"></canvas>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">频率比 a</label>
+                            <input type="range" min="1" max="5" step="1" value="3" class="slider w-full" id="lissajousA">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">1</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">5</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">频率比 b</label>
+                            <input type="range" min="1" max="5" step="1" value="2" class="slider w-full" id="lissajousB">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">1</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">5</span>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="text-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                频率比 <span id="lissajousRatioValue">3:2</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">相位差 (δ)</label>
+                        <input type="range" min="0" max="6.28" step="0.1" value="1.57" class="slider w-full" id="lissajousDelta">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="lissajousDeltaValue">π/2</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">2π</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">X振幅</label>
+                            <input type="range" min="0.1" max="1" step="0.1" value="0.8" class="slider w-full" id="lissajousAmpX">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400" id="lissajousAmpXValue">0.8</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">1.0</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Y振幅</label>
+                            <input type="range" min="0.1" max="1" step="0.1" value="0.8" class="slider w-full" id="lissajousAmpY">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400" id="lissajousAmpYValue">0.8</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 玫瑰曲线 -->
+        <section class="section mb-16">
+            <div class="curve-container bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">玫瑰曲线</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    玫瑰曲线是极坐标下的一种曲线，公式：r = a·cos(n·θ)，其中n决定了花瓣的数量。
+                </p>
+                <div class="mb-6">
+                    <canvas id="roseCanvas" class="w-full h-64 bg-gray-50 dark:bg-gray-700 rounded-lg"></canvas>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">振幅 (a)</label>
+                        <input type="range" min="0.1" max="1" step="0.1" value="0.8" class="slider w-full" id="roseAmplitude">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="roseAmplitudeValue">0.8</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">1.0</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">花瓣数 (n)</label>
+                        <input type="range" min="1" max="8" step="1" value="4" class="slider w-full" id="rosePetals">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">1</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="rosePetalsValue">4</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">8</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">旋转角度</label>
+                        <input type="range" min="0" max="6.28" step="0.1" value="0" class="slider w-full" id="roseRotation">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" id="roseRotationValue">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">2π</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+        
+    <!-- 心形曲线 -->
+    <section class="section py-16 opacity-0 transition-opacity duration-1000 ease-in-out">
+        <div class="container mx-auto px-4">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">心形曲线</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    心形曲线是一种特殊的数学曲线，它的形状像心脏。通过调整参数，可以改变心形的形状和大小。
+                </p>
+            </div>
+            <div class="mb-8">
+                <canvas id="heartCanvas" class="w-full h-64 bg-gray-50 dark:bg-gray-700 rounded-lg"></canvas>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">大小 (a)</label>
+                    <input type="range" min="0.1" max="1" step="0.1" value="0.8" class="slider w-full" id="heartSize">
+                    <div class="flex justify-between mt-1">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" id="heartSizeValue">0.8</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">1.0</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">形状 (b)</label>
+                    <input type="range" min="0.1" max="2" step="0.1" value="1" class="slider w-full" id="heartShape">
+                    <div class="flex justify-between mt-1">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" id="heartShapeValue">1</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">2.0</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">旋转角度</label>
+                    <input type="range" min="0" max="6.28" step="0.1" value="0" class="slider w-full" id="heartRotation">
+                    <div class="flex justify-between mt-1">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">0</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" id="heartRotationValue">0</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">2π</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+            <!-- 阿基米德螺旋线 -->
+            <section class="section py-16 opacity-0 transition-opacity duration-1000 ease-in-out">
+                <div class="container mx-auto px-4">
+                    <div class="mb-12 text-center">
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">阿基米德螺旋线</h2>
+                        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                            阿基米德螺旋线是一种螺旋线，其半径随着角度的增加而均匀增加。这种曲线在自然界中很常见，如贝壳的形状。
+                        </p>
+                    </div>
+                    <div class="mb-8">
+                        <canvas id="archimedeanCanvas" class="w-full h-64 bg-gray-50 dark:bg-gray-700 rounded-lg"></canvas>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">增长率 (a)</label>
+                            <input type="range" min="0.1" max="2" step="0.1" value="0.5" class="slider w-full" id="archimedeanGrowth">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">0.1</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400" id="archimedeanGrowthValue">0.5</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">2.0</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">旋转次数</label>
+                            <input type="range" min="1" max="10" step="1" value="5" class="slider w-full" id="archimedeanTurns">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">1</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400" id="archimedeanTurnsValue">5</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">10</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">旋转方向</label>
+                            <select id="archimedeanDirection" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                <option value="1">顺时针</option>
+                                <option value="-1">逆时针</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        <!-- 作者信息 -->
+        <footer class="section mt-20 mb-8 py-8 border-t border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-6 md:mb-0">
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">数学中的优美线条</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            © 2023 <span class="font-medium">AIBetas</span>. 保留所有权利。
+                        </p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="https://www.aibetas.com.cn" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-primary-500 dark:text-gray-400 dark:hover:text-primary-400 transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                            <span class="sr-only">Twitter</span>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-primary-500 dark:text-gray-400 dark:hover:text-primary-400 transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                            <span class="sr-only">GitHub</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // 获取HTML元素
+        const htmlElement = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        const sections = document.querySelectorAll('.section');
+        
+        // 主题切换
+        themeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            
+            // 重新绘制所有画布以适应新主题
+            drawSine();
+            drawLissajous();
+            drawRose();
+        });
+        
+        // 检测系统主题偏好
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            htmlElement.classList.add('dark');
+        }
+        
+        // 监听系统主题变化
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (e.matches) {
+                htmlElement.classList.add('dark');
+            } else {
+                htmlElement.classList.remove('dark');
+            }
+            
+            // 重新绘制所有画布以适应新主题
+            drawSine();
+            drawLissajous();
+            drawRose();
+        });
+        
+        // 滚动动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+        
+        // 设置Canvas的DPI
+        function setupCanvas(canvas) {
+            // 获取设备像素比
+            const dpr = window.devicePixelRatio || 1;
+            
+            // 获取Canvas的CSS宽高
+            const rect = canvas.getBoundingClientRect();
+            
+            // 设置Canvas的实际尺寸
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // 缩放绘图上下文以匹配设备像素比
+            ctx.scale(dpr, dpr);
+            
+            return ctx;
+        }
+        
+        // 调整所有Canvas大小
+        function resizeAllCanvases() {
+            const canvases = document.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                const ctx = setupCanvas(canvas);
+                
+                // 根据Canvas ID重新绘制相应的图形
+                if (canvas.id === 'sineCanvas') {
+                    drawSine();
+                } else if (canvas.id === 'lissajousCanvas') {
+                    drawLissajous();
+                } else if (canvas.id === 'roseCanvas') {
+                    drawRose();
+                }
+            });
+        }
+        
+        // 正弦曲线
+        const sineCanvas = document.getElementById('sineCanvas');
+        const sineAmplitude = document.getElementById('sineAmplitude');
+        const sineFrequency = document.getElementById('sineFrequency');
+        const sinePhase = document.getElementById('sinePhase');
+        const sineAmplitudeValue = document.getElementById('sineAmplitudeValue');
+        const sineFrequencyValue = document.getElementById('sineFrequencyValue');
+        const sinePhaseValue = document.getElementById('sinePhaseValue');
+        
+        function drawSine() {
+            const ctx = setupCanvas(sineCanvas);
+            const width = sineCanvas.width / window.devicePixelRatio;
+            const height = sineCanvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const amplitude = parseFloat(sineAmplitude.value);
+            const frequency = parseFloat(sineFrequency.value);
+            const phase = parseFloat(sinePhase.value);
+            
+            sineAmplitudeValue.textContent = amplitude.toFixed(1);
+            sineFrequencyValue.textContent = frequency.toFixed(1);
+            
+            // 显示相位，使用π表示
+            if (Math.abs(phase - Math.PI/2) < 0.1) {
+                sinePhaseValue.textContent = 'π/2';
+            } else if (Math.abs(phase - Math.PI) < 0.1) {
+                sinePhaseValue.textContent = 'π';
+            } else if (Math.abs(phase - 3*Math.PI/2) < 0.1) {
+                sinePhaseValue.textContent = '3π/2';
+            } else if (Math.abs(phase - 2*Math.PI) < 0.1 || phase < 0.1) {
+                sinePhaseValue.textContent = '0';
+            } else {
+                sinePhaseValue.textContent = phase.toFixed(2);
+            }
+            
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#4b5563' : '#d1d5db';
+            ctx.lineWidth = 1;
+            
+            // x轴
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            
+            // y轴
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(0, height / 2);
+            
+            ctx.stroke();
+            
+            // 绘制正弦曲线
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#60a5fa' : '#3b82f6';
+            ctx.lineWidth = 2;
+            
+            const step = 1;
+            for (let x = 0; x < width; x += step) {
+                const y = height / 2 - (height / 2) * amplitude * Math.sin(frequency * (x / width) * 2 * Math.PI + phase);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        sineAmplitude.addEventListener('input', drawSine);
+        sineFrequency.addEventListener('input', drawSine);
+        sinePhase.addEventListener('input', drawSine);
+        
+        // 利萨如曲线
+        const lissajousCanvas = document.getElementById('lissajousCanvas');
+        const lissajousA = document.getElementById('lissajousA');
+        const lissajousB = document.getElementById('lissajousB');
+        const lissajousDelta = document.getElementById('lissajousDelta');
+        const lissajousAmpX = document.getElementById('lissajousAmpX');
+        const lissajousAmpY = document.getElementById('lissajousAmpY');
+        const lissajousRatioValue = document.getElementById('lissajousRatioValue');
+        const lissajousDeltaValue = document.getElementById('lissajousDeltaValue');
+        const lissajousAmpXValue = document.getElementById('lissajousAmpXValue');
+        const lissajousAmpYValue = document.getElementById('lissajousAmpYValue');
+        
+        function drawLissajous() {
+            const ctx = setupCanvas(lissajousCanvas);
+            const width = lissajousCanvas.width / window.devicePixelRatio;
+            const height = lissajousCanvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const a = parseInt(lissajousA.value);
+            const b = parseInt(lissajousB.value);
+            const delta = parseFloat(lissajousDelta.value);
+            const ampX = parseFloat(lissajousAmpX.value);
+            const ampY = parseFloat(lissajousAmpY.value);
+            
+            lissajousRatioValue.textContent = `${a}:${b}`;
+            
+            // 显示相位差，使用π表示
+            if (Math.abs(delta - Math.PI/2) < 0.1) {
+                lissajousDeltaValue.textContent = 'π/2';
+            } else if (Math.abs(delta - Math.PI) < 0.1) {
+                lissajousDeltaValue.textContent = 'π';
+            } else if (Math.abs(delta - 3*Math.PI/2) < 0.1) {
+                lissajousDeltaValue.textContent = '3π/2';
+            } else if (Math.abs(delta - 2*Math.PI) < 0.1 || delta < 0.1) {
+                lissajousDeltaValue.textContent = '0';
+            } else {
+                lissajousDeltaValue.textContent = delta.toFixed(2);
+            }
+            
+            lissajousAmpXValue.textContent = ampX.toFixed(1);
+            lissajousAmpYValue.textContent = ampY.toFixed(1);
+            
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#4b5563' : '#d1d5db';
+            ctx.lineWidth = 1;
+            
+            // x轴
+            ctx.moveTo(width / 2, 0);
+            ctx.lineTo(width / 2, height);
+            
+            // y轴
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            
+            ctx.stroke();
+            
+            // 绘制利萨如曲线
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#60a5fa' : '#3b82f6';
+            ctx.lineWidth = 2;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 * 0.9;
+            
+            for (let t = 0; t < 2 * Math.PI * 10; t += 0.01) {
+                const x = centerX + radius * ampX * Math.sin(a * t + delta);
+                const y = centerY + radius * ampY * Math.sin(b * t);
+                
+                if (t === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+    
+        lissajousA.addEventListener('input', drawLissajous);
+        lissajousB.addEventListener('input', drawLissajous);
+        lissajousDelta.addEventListener('input', drawLissajous);
+        lissajousAmpX.addEventListener('input', drawLissajous);
+        lissajousAmpY.addEventListener('input', drawLissajous);
+        
+        // 玫瑰曲线
+        const roseCanvas = document.getElementById('roseCanvas');
+        const roseAmplitude = document.getElementById('roseAmplitude');
+        const rosePetals = document.getElementById('rosePetals');
+        const roseRotation = document.getElementById('roseRotation');
+        const roseAmplitudeValue = document.getElementById('roseAmplitudeValue');
+        const rosePetalsValue = document.getElementById('rosePetalsValue');
+        const roseRotationValue = document.getElementById('roseRotationValue');
+        
+        function drawRose() {
+            const ctx = setupCanvas(roseCanvas);
+            const width = roseCanvas.width / window.devicePixelRatio;
+            const height = roseCanvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const amplitude = parseFloat(roseAmplitude.value);
+            const n = parseInt(rosePetals.value);
+            const rotation = parseFloat(roseRotation.value);
+            
+            roseAmplitudeValue.textContent = amplitude.toFixed(1);
+            rosePetalsValue.textContent = n;
+            
+            // 显示旋转角度，使用π表示
+            if (Math.abs(rotation - Math.PI/2) < 0.1) {
+                roseRotationValue.textContent = 'π/2';
+            } else if (Math.abs(rotation - Math.PI) < 0.1) {
+                roseRotationValue.textContent = 'π';
+            } else if (Math.abs(rotation - 3*Math.PI/2) < 0.1) {
+                roseRotationValue.textContent = '3π/2';
+            } else if (Math.abs(rotation - 2*Math.PI) < 0.1 || rotation < 0.1) {
+                roseRotationValue.textContent = '0';
+            } else {
+                roseRotationValue.textContent = rotation.toFixed(2);
+            }
+            
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#4b5563' : '#d1d5db';
+            ctx.lineWidth = 1;
+            
+            // x轴
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            
+            // y轴
+            ctx.moveTo(width / 2, 0);
+            ctx.lineTo(width / 2, height);
+            
+            ctx.stroke();
+            
+            // 绘制玫瑰曲线
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#60a5fa' : '#3b82f6';
+            ctx.lineWidth = 2;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 * 0.9;
+            
+            for (let theta = 0; theta < 2 * Math.PI * 10; theta += 0.01) {
+                // 玫瑰曲线公式: r = a * cos(n * theta)
+                const r = radius * amplitude * Math.cos(n * (theta + rotation));
+                
+                // 转换为笛卡尔坐标
+                const x = centerX + r * Math.cos(theta);
+                const y = centerY + r * Math.sin(theta);
+                
+                if (theta === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        roseAmplitude.addEventListener('input', drawRose);
+        rosePetals.addEventListener('input', drawRose);
+        roseRotation.addEventListener('input', drawRose);
+        
+        // 初始化所有画布
+        window.addEventListener('load', () => {
+            resizeAllCanvases();
+            drawSine();
+            drawLissajous();
+            drawRose();
+            drawHeart();
+        });
+        
+        // 窗口大小改变时重新调整画布
+        window.addEventListener('resize', resizeAllCanvases);
+        // 心形曲线
+        const heartCanvas = document.getElementById('heartCanvas');
+        const heartSize = document.getElementById('heartSize');
+        const heartShape = document.getElementById('heartShape');
+        const heartRotation = document.getElementById('heartRotation');
+        const heartSizeValue = document.getElementById('heartSizeValue');
+        const heartShapeValue = document.getElementById('heartShapeValue');
+        const heartRotationValue = document.getElementById('heartRotationValue');
+        
+        function drawHeart() {
+            const ctx = setupCanvas(heartCanvas);
+            const width = heartCanvas.width / window.devicePixelRatio;
+            const height = heartCanvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const size = parseFloat(heartSize.value);
+            const shape = parseFloat(heartShape.value);
+            const rotation = parseFloat(heartRotation.value);
+            
+            heartSizeValue.textContent = size.toFixed(1);
+            heartShapeValue.textContent = shape.toFixed(1);
+            
+            // 显示旋转角度，使用π表示
+            if (Math.abs(rotation - Math.PI/2) < 0.1) {
+                heartRotationValue.textContent = 'π/2';
+            } else if (Math.abs(rotation - Math.PI) < 0.1) {
+                heartRotationValue.textContent = 'π';
+            } else if (Math.abs(rotation - 3*Math.PI/2) < 0.1) {
+                heartRotationValue.textContent = '3π/2';
+            } else if (Math.abs(rotation - 2*Math.PI) < 0.1 || rotation < 0.1) {
+                heartRotationValue.textContent = '0';
+            } else {
+                heartRotationValue.textContent = rotation.toFixed(2);
+            }
+            
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#4b5563' : '#d1d5db';
+            ctx.lineWidth = 1;
+            
+            // x轴
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            
+            // y轴
+            ctx.moveTo(width / 2, 0);
+            ctx.lineTo(width / 2, height);
+            
+            ctx.stroke();
+            
+            // 绘制心形曲线
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#f87171' : '#ef4444'; // 红色调
+            ctx.lineWidth = 2;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 * 0.8;
+            
+            // 填充心形
+            ctx.fillStyle = htmlElement.classList.contains('dark') ? 'rgba(248, 113, 113, 0.2)' : 'rgba(239, 68, 68, 0.1)';
+            
+            ctx.beginPath();
+            
+            for (let theta = 0; theta < 2 * Math.PI; theta += 0.01) {
+                // 心形曲线参数方程
+                // x = a * (16 * sin(t)^3)
+                // y = a * (13 * cos(t) - 5 * cos(2t) - 2 * cos(3t) - cos(4t))
+                
+                // 调整后的心形公式
+                const r = size * radius * (1 - Math.sin(theta) * Math.sqrt(Math.abs(Math.cos(theta))) / (Math.sin(theta) + shape + 1.4));
+                
+                // 应用旋转
+                const rotatedTheta = theta + rotation;
+                
+                // 转换为笛卡尔坐标
+                const x = centerX + r * Math.cos(rotatedTheta);
+                const y = centerY + r * Math.sin(rotatedTheta);
+                
+                if (theta === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+        
+        heartSize.addEventListener('input', drawHeart);
+        heartShape.addEventListener('input', drawHeart);
+        heartRotation.addEventListener('input', drawHeart);
+
+                // 心形曲线代码后面添加...
+        
+        // 阿基米德螺旋线
+        const archimedeanCanvas = document.getElementById('archimedeanCanvas');
+        const archimedeanGrowth = document.getElementById('archimedeanGrowth');
+        const archimedeanTurns = document.getElementById('archimedeanTurns');
+        const archimedeanDirection = document.getElementById('archimedeanDirection');
+        const archimedeanGrowthValue = document.getElementById('archimedeanGrowthValue');
+        const archimedeanTurnsValue = document.getElementById('archimedeanTurnsValue');
+        
+        function drawArchimedean() {
+            const ctx = setupCanvas(archimedeanCanvas);
+            const width = archimedeanCanvas.width / window.devicePixelRatio;
+            const height = archimedeanCanvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const a = parseFloat(archimedeanGrowth.value);
+            const turns = parseInt(archimedeanTurns.value);
+            const direction = parseInt(archimedeanDirection.value);
+            
+            archimedeanGrowthValue.textContent = a.toFixed(1);
+            archimedeanTurnsValue.textContent = turns;
+            
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#4b5563' : '#d1d5db';
+            ctx.lineWidth = 1;
+            
+            // x轴
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            
+            // y轴
+            ctx.moveTo(width / 2, 0);
+            ctx.lineTo(width / 2, height);
+            
+            ctx.stroke();
+            
+            // 绘制阿基米德螺旋线
+            ctx.beginPath();
+            ctx.strokeStyle = htmlElement.classList.contains('dark') ? '#10b981' : '#059669'; // 绿色调
+            ctx.lineWidth = 2;
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const maxRadius = Math.min(width, height) / 2 * 0.9;
+            
+            // 阿基米德螺旋线公式: r = a * theta
+            // 参数方程: x = r * cos(theta), y = r * sin(theta)
+            
+            ctx.moveTo(centerX, centerY);
+            
+            for (let theta = 0; theta <= 2 * Math.PI * turns; theta += 0.01) {
+                const r = a * theta * maxRadius / (2 * Math.PI * turns);
+                
+                // 应用旋转方向
+                const x = centerX + r * Math.cos(direction * theta);
+                const y = centerY + r * Math.sin(direction * theta);
+                
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+        }
+        
+        archimedeanGrowth.addEventListener('input', drawArchimedean);
+        archimedeanTurns.addEventListener('input', drawArchimedean);
+        archimedeanDirection.addEventListener('change', drawArchimedean);
+        
+        // 更新初始化函数
+        window.addEventListener('load', () => {
+            resizeAllCanvases();
+            drawSine();
+            drawLissajous();
+            drawRose();
+            drawHeart();
+            drawArchimedean();
+        });
+    </script>
+</body>
+</html>
